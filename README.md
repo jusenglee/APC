@@ -1,7 +1,8 @@
 # APC
-![image](https://github.com/jusenglee/APC/assets/85321903/3f01a069-cca7-4ebf-abce-a535002e0f1c)
 
-![image](https://github.com/jusenglee/APC/assets/85321903/505640b7-a4b9-4a8f-a72b-b8e12456b968)
+![image](https://github.com/jusenglee/APC/assets/85321903/4ba8308e-a754-45b7-92b3-eb4c3b1fdffa)
+
+![image](https://github.com/jusenglee/APC/assets/85321903/3ea40b69-7b24-4bfd-b070-50bac300b809)
 
 사용한 스택:
 mybatis
