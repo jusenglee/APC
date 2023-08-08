@@ -1,0 +1,1409 @@
+{% extends "admin/base" %}
+{% import "admin/macros" %}
+
+<!-- 내용 -->
+{% block content %}
+{% include "admin/oprs/jrnlManage/tabMenu" %}
+<style>
+	.no-padding {
+    padding-left: 0;
+}
+</style>
+
+<!--From -->
+<form class="form-inline" id="mainFrm" name="mainFrm" method="post"  action="{{href('/' + siteName + '/admin/oprs/jrnlManage/policyInfoManageApcInfoAjax.do')}}">
+<div class="panel panel-default custom-panel">
+<div class="panel-heading custom-panel-heading">
+<i class="fa fa-cube" style="padding-right: 5px;"></i>논문출판 비용정보 - 저자논문출판비용 정책
+</div>
+</div>
+	
+<div class="panel-body custom-panel-body2">
+<div class="row panel-body-inner">
+<div class="form-inline">
+	
+<div class="d-flex align-items-center justify-content-start mb-10" >
+<div class="form-check" style="margin-left: 10px;">
+	<label class="form-check-label mr-3" style="color: rgb(116, 116, 116); width: 300px;">
+	저자의 논문 게재료
+	</label>  
+	<input type="radio" id="Charged" class="mr-2" name="journal.apc.paidYn" value="Y"
+	{% if jrnlConfig['journal.apc.paidYn'] == 'Y' %} checked="checked" {% endif %}  />
+	<label for="Charged" class="mr-4" style="margin-right: 10px;">유료</label>
+	<input type="radio" id="Free" name="journal.apc.paidYn" value="N" 
+	{% if jrnlConfig['journal.apc.paidYn'] == 'N' %} checked="checked" {% endif %}>
+	<label for="Free">무료</label>
+</div>
+</div>
+
+<div id="input_inner">
+<div class="d-flex align-items-center justify-content-start mb-10">
+<div class="form-check" style="margin-left: 10px;">
+	<label class="form-check-label mr-3" style="color: rgb(116, 116, 116); width: 300px;">
+   학술지에서 사용하는 화폐 단위 
+	</label>
+	<input type="checkbox" id="won" class="mr-2"  value="Y" {% if jrnlConfig['journal.apc.unitWonYn'] == 'Y' %} checked="checked" {% endif %}>
+	<input type="hidden" id="won_hidden" name="journal.apc.unitWonYn">
+	<label for="won" class="mr-4" style="margin-right: 23px;">원</label>
+	<input type="checkbox" id="dollar" name="journal.apc.unitDollarYn" value="Y" {% if jrnlConfig['journal.apc.unitDollarYn'] == 'Y' %} checked="checked" {% endif %}>
+	<input type="hidden" id="dollar_hidden" name="journal.apc.unitDollarYn">
+	<label for="dollar" >달러</label>
+</div>
+</div>
+<hr>
+						
+<table style="height: 100px;">
+<style>
+	table {
+	    border-collapse: separate;
+	    border-spacing: 0 10px;
+	    
+	}
+	
+	.no-padding {
+	    padding-left: 0;
+	}
+
+</style>
+  <tbody>
+<tr>
+	<td class="row col-md-8">
+	<label>
+	기준금액(
+	<input type="radio" value="Y" name="letter" id="letter_Y" checked
+	{% for vo in apcDTO.apcDataList %}
+	{% if vo.tyCode == "OP2402" %}
+	checked 
+	{% endif %}
+    {% endfor %}}
+	><label for="letter_Y" >사사표기 포함</label>
+	&nbsp&nbsp
+	<input type="radio" value="N" name="letter" id="letter_N" 
+	{% for vo in apcDTO.apcDataList %}
+	{% if vo.tyCode == "OP2404" %}
+	checked 
+	{% endif %}
+    {% endfor %}}
+	><label for="letter_N" >사사표기 미포함</label>
+	)
+	</label>
+	<input type="hidden" id="OP2301" name="tyCodeList" value="OP2301"/>	
+	</td>
+							
+	<td class="col-md-4">
+	<div class="form-group">
+	<label>₩
+	<input type="number" class="form-control" style="width: 150px"  name="wonAmount" id="main_APC_won" 
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2301" %}
+      value="{{ vo.wonAmount }}"
+    {% endif %}
+    {% endfor %}}
+	 ></label>
+	<label>$</label>
+	<input type="number" class="form-control" style="width: 150px"  name="dollarAmount" id="main_APC_dollar" 
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2301" %}
+      value="{{ vo.dollarAmount }}"
+    {% endif %}
+    {% endfor %}
+	readonly></label>
+	</div>
+	</td>
+</tr>
+<tr>
+	<td class="col-md-8 .col-sm-5">
+	<label>사사표기 포함시 추가금액</label>
+	<input type="hidden" id="OP2402" name="tyCodeList" value="OP2402" readonly/>	
+	</td>
+	<td class="col-md-4">
+	<div class="form-group">
+	<label>₩
+	<input type="number" class="form-control" style="width: 150px" name="wonAmount" id="letter_Y_won" 
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2402" %}
+    value="{{ vo.wonAmount }}"
+    {% endif %}
+    {% endfor %}
+	readonly></label>
+	<label>$
+	<input type="number" class="form-control" style="width: 150px" name="dollarAmount" id="letter_Y_dollar" 
+	{% for vo in apcDTO.apcDataList %}
+	{% if vo.tyCode == "OP2402" %}
+    value="{{ vo.dollarAmount }}"
+    {% endif %} 
+    {% endfor %}
+	readonly></label>
+	</div>
+	</td>
+</tr>  
+						   
+<tr>
+	<td class="col-md-8 .col-sm-5">
+	<label>사사표기 미포함시 감액</label>
+	<input type="hidden" id="OP2404" name="tyCodeList" value="OP2404" readonly/>	
+	</td>
+	<td class="col-md-4">
+	<div class="form-group">
+	<label>₩
+	<input type="number" class="form-control" style="width: 150px" name="wonAmount" id="letter_N_won" 
+	{% for vo in apcDTO.apcDataList %}
+	{% if vo.tyCode == "OP2404" %}
+      value="{{ vo.wonAmount }}"
+    {% endif %}
+    {% endfor %}
+	readonly></label>
+	<label>$
+	<input type="number" class="form-control" style="width: 150px" name="dollarAmount" id="letter_N_dollar" 
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2404" %}
+  	value="{{ vo.dollarAmount }}"
+    {% endif %}
+    {% endfor %}
+	 readonly></label>
+	</div>
+	</td>
+</tr>
+
+ 
+<tr>
+	<td class="col-md-8 .col-sm-5">
+	<label>기준 페이지</label>
+	</td>
+	<td class="col-md-4">
+	<div class="form-group">&nbsp&nbsp&nbsp
+	<input type="number" name="journal.page.min" class="form-control" style="width: 100px" id="page_min" min="1" max="1" value="{% if jrnlConfig['journal.page.min'] != null %}{{jrnlConfig['journal.page.min'] }}{% else %}1{% endif %}" readonly>
+	 ~ 
+	<input type="number" name="journal.page.max" class="form-control" style="width: 100px" id="page_max" min="1" max="200" value="{% if jrnlConfig['journal.page.max'] != null %}{{jrnlConfig['journal.page.max'] }}{% else %}100{% endif %}" readonly>
+	</div>
+	</td>
+</tr>
+						   
+</tbody>
+</table>
+<hr>
+<table>
+<tbody>
+	
+<tr>
+	<td class="col-md-8">
+	<label> 초과 게재료</label>
+	<input type="hidden" id="excessIngredients" />
+	</td>
+     
+	<td class="col-md-4">
+	<div class="form-group">
+	<label for="exampleInputName2">₩</label>
+	<input type="number" class="form-control" style="width: 150px" name="wonAmount" id="excessWon" 
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2405" %}
+      value="{{ vo.wonAmount }}"
+    {% endif %}
+    {% endfor %}}
+	readonly>
+	<label for="exampleInputName2">$</label>
+	<input type="number" class="form-control" style="width: 150px" name="dollarAmount" id="excessDollar" 
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2405" %}
+      value="{{ vo.dollarAmount }}"
+    {% endif %}
+    {% endfor %}}
+	readonly>
+	</div>
+	</td>
+</tr>
+						   
+</tbody>
+</table>
+<hr>
+
+<div class="row">
+	<div class="col-12 mb-10" style="margin-left:30px;">
+	<label style="font-weight:bold">논문 게제료 면제 및 할인 조항</label>
+</div>
+</div>
+<div class="container-fluid" style="margin-left:20px;">
+<div class="row">
+<div class="col-md-2" style="margin-top:10px;">
+	<!-- 각 대상자  -->
+	<div class="row">
+	<div class="col" style="margin-bottom: 15px;"><label style="color: rgb(116, 116, 116);">소속이 없는 독립 연구자</label>
+	</div></div>
+	<div class="row" id="ETC_title">
+	<div class="col" style="margin-bottom: 15px;"><label style="color: rgb(116, 116, 116);">학생 연구자</label>
+	</div></div>
+        
+	<!-- 기타 항목 -->
+	{% set hasEtcItem = false %}
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2408" %}
+    {% set hasEtcItem = true %}
+	<!-- 리스트에 항목이 있는 경우 처리할 코드 -->
+	<div class="row etc-group-head group{{loop.index}}" >
+	<div class="col" style="margin-bottom: 10px;" ><label style="color: rgb(116, 116, 116);">기타 &nbsp&nbsp</label>
+	<input type="text" class="form-control" style="width: 150px" name="etcName" value="{{vo.iemNmKor}}" ></div>
+	</div>
+    {% endif %}
+	{% endfor %}
+
+	{% if not hasEtcItem %}
+	<!-- 리스트가 비어있는 경우 처리할 코드 -->
+	<div class="row etc-group-head " >
+	<div class="col" style="margin-bottom: 10px;" ><label style="color: rgb(116, 116, 116);">기타 &nbsp&nbsp</label>
+	<input type="text" class="form-control" style="width: 150px" name="etcName" value=""></div>
+	</div>
+	{% endif %}
+	
+</div>
+					 	
+<div class="col-md-10" id="etcGroups" style="margin-top:10px;">
+<!-- 세 번째 div의 내용 -->
+<div class="row" style="margin-bottom: 10px;"><!--항목1 무소속-->
+	<div class="col-md-1">
+		<label style="color: rgb(116, 116, 116);">
+		{% set containsOP2406 = false %}
+		{% for vo in apcDTO.apcDataList %}
+		    {% if vo.tyCode == 'OP2406' %}
+		        {% set containsOP2406 = true %}
+		    {% endif %}
+		{% endfor %}
+		<input type="radio" class="discount-radio" name="ddctCode1" value="" 
+    	{% if not containsOP2406 %} checked{% endif %}
+		>해당없음</label></div>
+	<div class="col-md-1 ">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio"class="discount-radio" name="ddctCode1" value="OP2501" 
+		{% for vo in apcDTO.apcDataList %}
+		{% if vo.tyCode == "OP2406" and vo.ddctCode == "OP2501" %}
+		 checked 
+		{% endif %} 
+		{% endfor %}
+		/>면제</label></div>
+	<div class="col-md-2 ">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio"class="discount-radio" name="ddctCode1" value="OP2502" 
+		{% for vo in apcDTO.apcDataList %}
+		{% if vo.tyCode == "OP2406" and vo.ddctCode == "OP2502" %}
+		 checked 
+		{% endif %} 
+		{% endfor %}
+		/>할인 &nbsp
+		<label>(<input type="radio" class="amount-radio" value="Y" name="ddct1_radio" id="ddctCode1_radio_Y" 
+		{% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2406" and (vo.dollarAmount is not null or vo.wonAmount is not null) %}
+		 checked 
+		 {% endif %} 
+		{% endfor %}>
+		<label for="ddctCode1_radio_Y">금액</label>
+		&nbsp&nbsp<input type="radio" class="percent-radio" value="N" name="ddct1_radio" id="ddctCode1_radio_N"
+				{% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2406" and vo.rate is not null %}
+		 checked 
+		 {% endif %} 
+		{% endfor %}>
+		<label for="ddctCode1_radio_N">비율</label>)
+		</label></label>
+	</div>
+	
+	<div class="col-md-2" style="margin-left:30px;">₩ 
+		<input type="number" class="form-control" style="width: 150px" name="ddctWonAmount" min="0" max="100" 
+		{% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2406" and vo.wonAmount is not null %}
+		  value="{{ vo.wonAmount }}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		{% endfor %}
+		></div>
+	<div class="col-md-2 pl-0">$ 
+		<input type="number" class="form-control" style="width: 150px" name="ddctDollarAmount" min="0" max="100" 
+		{% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2406" and vo.dollarAmount is not null %}
+		  value="{{ vo.dollarAmount }}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		 {% endfor %}
+		></div>
+	<div class="col-md-2 pl-0">% 
+		<input type="number" class="form-control" style="width: 100px" name="rate" min="0" max="100" 
+		{% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2406" and vo.rate is not null %}
+		  value="{{vo.rate}}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		 {% endfor %}
+		></div>
+	<div class="col-md-1 pl-0" style="margin-left: 5px;">
+	</div>
+</div>
+
+<div class="row" style="margin-bottom: 10px;" id="Etn"><!--항목2 학생-->
+	<div class="col-md-1">
+		<label style="color: rgb(116, 116, 116);">
+		{% set containsOP2407 = false %}
+		{% for vo in apcDTO.apcDataList %}
+		    {% if vo.tyCode == 'OP2407' %}
+		        {% set containsOP2407 = true %}
+		    {% endif %}
+		{% endfor %}
+		<input type="radio" class="discount-radio" name="ddctCode2" value="" 
+    	{% if not containsOP2407 %} checked{% endif %}
+		/>해당없음</label></div>
+	<div class="col-md-1">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="ddctCode2" value="OP2501" 
+		{% for vo in apcDTO.apcDataList %}
+		{% if vo.tyCode == "OP2407" and vo.ddctCode == "OP2501" %}
+		 checked 
+		{% endif %} 
+		{% endfor %}
+		/>면제</label></div>
+	<div class="col-md-2">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="ddctCode2" value="OP2502" 
+		{% for vo in apcDTO.apcDataList %}
+		{% if vo.tyCode == "OP2407" and vo.ddctCode == "OP2502" %}
+		 checked 
+		{% endif %} 
+		{% endfor %}
+		/>할인 &nbsp
+		</label>
+		<label for="ddctCode2_radio_Y">
+		(<input type="radio" class="amount-radio" value="Y" name="ddct2_radio" id="ddctCode2_radio_Y" 
+		{% for vo in apcDTO.apcDataList %}
+		 {% if vo.tyCode == "OP2407" and (vo.wonAmount is not null or vo.dollarAmount is not null) %}
+		 checked 
+		 {% endif %} 
+		{% endfor %}>&nbsp금액</label>
+		
+		&nbsp&nbsp
+		<label for="ddctCode2_radio_N">
+		<input type="radio" class="percent-radio" value="N" name="ddct2_radio" id="ddctCode2_radio_N" 
+		{% for vo in apcDTO.apcDataList %}
+		 {% if vo.tyCode == "OP2407" and vo.rate is not null %}
+		 checked 
+		 {% endif %} 
+		{% endfor %}>&nbsp비율</label>)
+		
+	</div>
+	<div class="col-md-2" style="margin-left:30px;">₩  
+		<input type="number" class="form-control" style="width: 150px" name="ddctWonAmount" min="0" max="100" 
+		 {% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2407" and vo.wonAmount is not null %}
+		  value="{{vo.wonAmount}}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		 {% endfor %}
+		></div>
+	<div class="col-md-2 pl-0">$  
+		<input type="number" class="form-control" style="width: 150px" name="ddctDollarAmount" min="0" max="100" 
+		 {% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2407" and vo.dollarAmount is not null %}
+		  value="{{vo.dollarAmount}}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		 {% endfor %}
+		></div>
+	<div class="col-md-2 pl-0">%  <input type="number" class="form-control" style="width: 100px" name="rate" min="0" max="100" 
+		 {% for vo in apcDTO.apcDataList %}
+		  {% if vo.tyCode == "OP2407" and vo.rate is not null %}
+		  value="{{vo.rate}}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		 {% endfor %}
+		 ></div>
+	<div class="col-md-1 pl-0" style="margin-left: 5px;">
+	</div>
+</div >
+
+{% set etcCount = 0 %}
+{% for vo in apcDTO.apcDataList %}
+{% if vo.tyCode == "OP2408" %}
+{% set etcCount = etcCount + 1 %}
+{% endif %}
+{% endfor %}
+
+{% set hasEtcItem = false %}
+{% set currentEtc = 0 %}
+{% for vo in apcDTO.apcDataList %}
+{% if vo.tyCode == "OP2408" %}
+{% set currentEtc = currentEtc + 1 %}
+{% set hasEtcItem = true %}
+<!-- 기타 항목(OP2408)이 있는 경우 처리할 코드 -->
+<div class="row etc-group-body group{{loop.index}}" style="margin-bottom: 10px;">
+	<div class="col-md-1"><label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="discountStatus{{loop.index}}" value="" 
+		{% if vo.ddctCode is null %} checked{% endif %}
+		/>해당없음</label></div>
+	<div class="col-md-1"><label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="discountStatus{{loop.index}}" value="OP2501"  {% if vo.ddctCode == 'OP2501'%} checked {% endif %}/>면제</label></div>
+	<div class="col-md-2"><label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="discountStatus{{loop.index}}" value="OP2502"  {% if vo.ddctCode == 'OP2502'%} checked {% endif %} />
+		할인 &nbsp
+		<label>(<input type="radio" class="amount-radio" value="Y" name="discount{{loop.index}}_radio" id="etc_radio_Y{{loop.index}}"
+		 {% if vo.ddctCode == "OP2502" and (vo.dollarAmount is not null or vo.wonAmount is not null) %}
+		 checked
+		 {% endif %}
+		><label for="etc_radio_Y{{loop.index}}" >금액</label>
+		&nbsp&nbsp<input type="radio" class="percent-radio" value="N" name="discount{{loop.index}}_radio" id="etc_radio_N{{loop.index}}"
+		 {% if vo.ddctCode == "OP2502" and vo.rate is not null %}
+		 checked
+		 {% endif %}><label for="etc_radio_N{{loop.index}}" >&nbsp비율</label>)
+		</label></label>
+	</div>
+	<div class="col-md-2" style="margin-left:30px;">₩  
+		<input type="number" class="form-control" style="width: 150px" name="amountWon{{loop.index}}" min="0" max="100" 
+		  {% if vo.ddctCode == "OP2502" and vo.wonAmount is not null %}
+		  value="{{vo.wonAmount}}"
+		  {%else%}
+		  readonly
+		  {% endif %}
+		></div>
+	<div class="col-md-2 pl-0">$
+		<input type="number" class="form-control" style="width: 150px" name="amountDollar{{loop.index}}" min="0" max="100" 
+		  {% if vo.ddctCode == "OP2502" and vo.dollarAmount is not null %}
+		  value="{{vo.dollarAmount}}"
+		  {%else%}
+		  readonly
+		  {% endif %}></div>
+	<div class="col-md-2 pl-0">% 
+		<input type="number" class="form-control" style="width: 100px" name="ratePercent{{loop.index}}" min="0" max="100"
+		  {% if vo.ddctCode == "OP2502" and vo.rate is not null %}
+		  value="{{vo.rate}}"
+		  {%else%}
+		  readonly
+		  {% endif %}></div>
+	{% if currentEtc == etcCount %}<!-- 리스트에 마지막 항목은 추가버튼 생성 -->
+	<div class="col-md-1 pl-0" style="margin-left: 5px;">
+		<button type="button" id="btn3" class="btn btn-primary btn-custom-edit2" ><i class="fa fa-plus"></i>추가</button>
+	</div>
+	{%else %}<!-- 리스트에 첫번째 항목부터 마지막전까지 삭제버튼버튼 생성 -->
+	<div class="col-md-1 pl-0" style="margin-left: 5px;">
+		<button type="button" class="btn btn-danger btn-remove" data-group="group{{loop.index}}"><i class="fa fa-minus"></i>삭제</button>
+	</div>
+	{%endif%}
+</div>
+{% endif %}
+{% endfor %}
+
+{% if not hasEtcItem %}
+<!-- 기타 항목(OP2408) 없을경우 처리할 코드 -->
+<div class="row etc-group-body" id="ETC_radio" style="margin-bottom: 10px">
+	<div class="col-md-1">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio"  class="discount-radio" name="discountStatus"  value="" checked/>해당없음</label></div>
+	<div class="col-md-1">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="discountStatus" value="OP2501" />면제</label></div>
+	<div class="col-md-2">
+		<label style="color: rgb(116, 116, 116);">
+		<input type="radio" class="discount-radio"  name="discountStatus" value="OP2502" />
+		할인 &nbsp
+		<label>(<input type="radio" class="amount-radio" value="Y" name="discount_radio" id="etc_radio_Y{{loop.index}}"><label for="etc_radio_Y{{loop.index}}" >금액</label>
+		&nbsp&nbsp<input type="radio"class="percent-radio" value="N" name="discount_radio" id="etc_radio_N{{loop.index}}"><label for="etc_radio_N{{loop.index}}" >비율</label>)
+		</label></label>
+	</div>
+	<div class="col-md-2" style="margin-left:30px;">₩  
+		<input type="number" class="form-control" style="width: 150px" name="amountWon" min="0" max="100"  readonly ></div>
+	<div class="col-md-2 pl-0">$ 
+		<input type="number" class="form-control" style="width: 150px" name="amountDollar" min="0" max="100"  readonly ></div>
+	<div class="col-md-2 pl-0">% 
+		<input type="number" class="form-control" style="width: 100px" name="ratePercent" min="0" max="100" readonly ></div>
+	<div class="col-md-1 pl-0" style="margin-left: 5px;">
+		<button type="button" id="btn3" class="btn btn-primary btn-custom-edit2" readonly><i class="fa fa-plus"></i>추가</button>
+	</div>
+</div>
+{% endif %}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="panel panel-default custom-panel" style="margin-top: 20px;">
+<div class="panel-heading custom-panel-heading">
+<i class="fa fa-cube" style="padding-right: 5px;"></i>논문출판 비용정보 - OA 출판 재정 공개
+</div>
+</div>
+<div class="panel-body custom-panel-body2" >
+<div class="row panel-body-inner" style="margin-bottom: 20px;">
+<div class="form-group">
+	
+<div class="form form-horizontal" id="formBox">
+<div class="panel-heading custom-panel-heading" name="publication_Cost">학술지 논문 출판비용(APC)출처  
+<input type="radio" name="journal.apcOriginOpenYn" style="margin :10px; margin-left: 60px; " id="Public" value="Y"
+{% if jrnlConfig['journal.apcOriginOpenYn'] == 'Y' %} checked {% endif %}><label for="Public">공개 </label>
+<input type="radio" name="journal.apcOriginOpenYn" style="margin :10px; " id="Private" value="N"
+{% if jrnlConfig['journal.apcOriginOpenYn'] == 'N' %} checked {% endif %}><label for="Private">비공개 </label>
+</div>
+<hr>
+<div id="inner_div">
+<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center">
+<div class="form-check mb-5" style="display: flex; align-items: center;" >
+<!--체크박스 -->
+<input class="form-check-input" name="OaTyCode" type="checkbox" id="chk1" value="OP2451" style="flex: 0 0 auto; margin:0px 0px 2px 0px;"
+ {% for vo in apcDTO.apcDataList %}
+ {% if vo.tyCode == "OP2451" %}
+	checked
+ {% endif %}
+ {% endfor %}>
+<label class="form-check-label" for="chk1" style="flex: 0 0 300px; margin-left:10px; vertical-align: middle;">
+저자의 논문 게재료
+</label>
+</div>
+</div>
+        			
+<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center">
+<div class="form-check mb-5" style="display: flex; align-items: center;">
+	<!--체크박스 -->
+	<input class="form-check-input" name="OaTyCode"  type="checkbox" id="chk2" value="OP2452" style="flex: 0 0 auto; margin:0px 0px 2px 0px;"
+	 {% for vo in apcDTO.apcDataList %}
+	 {% if vo.tyCode == "OP2452" %}
+		checked
+	 {% endif %}
+	 {% endfor %}>
+	<label class="form-check-label" for="chk2" style="flex: 0 0 300px; margin-left:10px; color: rgb(116, 116, 116); vertical-align: middle;">
+	 발행기관 자체예산(학회 기관, 출판사)
+	</label>
+</div>
+</div>
+
+	<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center" id="OP2453">
+	{% set OP2453Item = false %}
+	{% set firstOP2453 = true %}
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2453" %}
+    {% set OP2453Item = true %}
+	<!-- 리스트에 항목이 있는 경우 처리할 코드 -->
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div3">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk3" name="OaTyCode" value="OP2453" style="flex: 0 0 auto; margin:0px 0px 2px 0px; {% if not firstOP2453 %} visibility: hidden; {% endif %}"
+	 {% if vo.tyCode == "OP2453" %}
+		checked
+	 {% endif %}>
+	<label class="form-check-label" for="chk3" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle; {% if not firstOP2453 %} visibility: hidden; {% endif %}">
+	 국내 공공지원금
+	</label>
+	<input type="text" id="textbox3" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount3" maxlength="50" style="width: 450px; margin-left:10px;" 
+ 	{% if vo.tyCode == "OP2453"%}
+	value="{{vo.iemNmKor}}"
+	{% else %}
+	readonly
+ 	{% endif %}>
+ 	{% if firstOP2453 %}
+	<button type="button" id="botton3" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	{% set firstOP2453 = false %}
+	{% else %}
+	<button type='button' name="delete-btn" class='btn btn-danger'style='flex: 0 0 auto;margin-left:10px;'><i class='fa fa-minus'></i>삭제</button>
+	{% endif %}
+	</div>
+    {% endif %}
+	{% endfor %}
+	
+	{% if not OP2453Item %}
+	<!-- 리스트가 비어있는 경우 처리할 코드 -->
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div3">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk3" name="OaTyCode" value="OP2453" style="flex: 0 0 auto; margin:0px 0px 2px 0px;">
+	<label class="form-check-label" for="chk3" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle;">
+	 국내 공공지원금
+	</label>
+	<input type="text" id="textbox3" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount3" maxlength="50" style="width: 450px; margin-left:10px;" readonly>
+	<button type="button" id="botton3" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto;margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	</div>
+	{% endif %}
+	</div>
+
+	<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center" id="OP2454">
+	{% set OP2454Item = false %}
+	{% set firstOP2454 = true %}
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2454" %}
+    {% set OP2454Item = true %}
+	<!-- 리스트에 항목이 있는 경우 처리할 코드 -->	
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div4">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk4" name="OaTyCode" value="OP2454" style="flex: 0 0 auto; margin:0px 0px 2px 0px; {% if not firstOP2454 %} visibility: hidden; {% endif %}"
+	 {% if vo.tyCode == "OP2454" %}
+		checked
+	 {% endif %}>
+	<label class="form-check-label" for="chk4" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle; {% if not firstOP2454 %} visibility: hidden; {% endif %}">
+	 해외 공공지원금
+	</label>
+	<input type="text" id="textbox4" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount4" maxlength="50" style="width: 450px; margin-left:10px;" 
+ 	{% if vo.tyCode == "OP2454" %}
+	value="{{vo.iemNmKor}}"
+	{% else %}
+	readonly
+ 	{% endif %}>
+	{% if firstOP2454 %}
+	<button type="button" id="botton4" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	{% set firstOP2454 = false %}
+	{% else %}
+	<button type='button' name="delete-btn" class='btn btn-danger' style='flex: 0 0 auto;margin-left:10px;'><i class='fa fa-minus'></i>삭제</button>
+	{% endif %}
+	</div>
+	
+    {% endif %}
+	{% endfor %}
+	{% if not OP2454Item %}
+	<!-- 리스트가 비어있는 경우 처리할 코드 -->
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div4">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk4" name="OaTyCode" value="OP2454" style="flex: 0 0 auto; margin:0px 0px 2px 0px;">
+	<label class="form-check-label" for="chk4" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle;">
+	 해외 공공지원금
+	</label>
+	<input type="text" id="textbox4" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount4" maxlength="50" style="width: 450px; margin-left:10px;" readonly>
+	<button type="button" id="botton4" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto;margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	</div>
+	{%endif%}
+	</div>
+
+
+	<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center" id="OP2455">
+	{% set OP2455Item = false %}
+	{% set firstOP2455 = true %}
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2455" %}
+    {% set OP2455Item = true %}
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div5">
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk5" name="OaTyCode" value="OP2455" style="flex: 0 0 auto; margin:0px 0px 2px 0px; {% if not firstOP2455 %} visibility: hidden; {% endif %}"
+	{% if vo.tyCode == "OP2455" %}
+	checked
+	{% endif %}
+	 >
+	<!--체크박스 -->
+	<label class="form-check-label" for="chk5" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle; {% if not firstOP2455 %} visibility: hidden; {% endif %}">
+	 국내 민간지원금
+	</label>
+	<input type="text" id="textbox5" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount5" maxlength="50" style="width: 450px; margin-left:10px;" 
+ 	{% if vo.tyCode == "OP2455" and vo.iemNmKor is not null %}
+	value="{{vo.iemNmKor}}"
+ 	{% endif %}>
+ 	{% if firstOP2455 %}
+	<button type="button" id="botton5" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	{% set firstOP2455 = false %}
+	{% else %}
+	<button type='button' name="delete-btn" class='btn btn-danger' style='flex: 0 0 auto;margin-left:10px;'><i class='fa fa-minus'></i>삭제</button>
+	{% endif %}
+	</div>
+	{% endif %}
+	{% endfor %}
+	
+	{% if not OP2455Item %}
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div5">
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk5" name="OaTyCode" value="OP2455" style="flex: 0 0 auto; margin:0px 0px 2px 0px;">
+	<!--체크박스 -->
+	<label class="form-check-label" for="chk5" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle;">
+	 국내 민간지원금
+	</label>
+	<input type="text" id="textbox5" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount5" maxlength="50" style="width: 450px; margin-left:10px;" >
+	<button type="button" id="botton5" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	</div>
+	{% endif %}
+	</div>
+
+	<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center" id="OP2456">
+	{% set OP2456Item = false %}
+	{% set firstOP2456 = true %}
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2456" %}
+    {% set OP2456Item = true %}
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div6">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk6" name="OaTyCode" value="OP2456" style="flex: 0 0 auto; margin:0px 0px 2px 0px; {% if not firstOP2456 %} visibility: hidden; {% endif %}"
+	{% if vo.tyCode == "OP2456" %}
+	checked
+	{% endif %}>
+	<label class="form-check-label" for="chk6" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle; {% if not firstOP2456 %} visibility: hidden; {% endif %}">
+	 해외 민간지원금
+	</label>
+	<input type="text" id="textbox6" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount6" maxlength="50" style="width: 450px; margin-left:10px;" 
+ 	{% if vo.tyCode == "OP2456" and vo.iemNmKor is not null %}
+	value="{{vo.iemNmKor}}"
+	{% else %}
+	readonly
+ 	{% endif %}>
+ 	{% if firstOP2456 %}
+	<button type="button" id="botton6" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	{% set firstOP2456 = false %}
+	{% else %}
+	<button type='button' name="delete-btn" class='btn btn-danger' style='flex: 0 0 auto;margin-left:10px;'><i class='fa fa-minus'></i>삭제</button>
+	{% endif %}
+	</div>
+	{% endif %}
+	{% endfor %}
+
+	{% if not OP2456Item %}
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div6">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox" id="chk6" name="OaTyCode" value="OP2456" style="flex: 0 0 auto; margin:0px 0px 2px 0px;">
+	<label class="form-check-label" for="chk6" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle;">
+	 해외 민간지원금
+	</label>
+	<input type="text" id="textbox6" placeholder="지원금 지원 기관명 입력." name="OaName" class="apcAmount6" maxlength="50" style="width: 450px; margin-left:10px;" readonly>
+	<button type="button" id="botton6" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	</div>
+	{% endif %}
+	</div>
+	
+	<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 pl-0 form-check-inline mb-10 d-flex align-items-center" id="OP2457">
+	{% set OP2457Item = false %}
+	{% set firstOP2457 = true %}
+	{% for vo in apcDTO.apcDataList %}
+    {% if vo.tyCode == "OP2457" %}
+    {% set OP2457Item = true %}
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div7">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox"id="chk7" name="OaTyCode" value="OP2457" style="flex: 0 0 auto; margin:0px 0px 2px 0px; {% if not firstOP2457 %} visibility: hidden; {% endif %}"
+	 {% if vo.tyCode == "OP2457" %}
+		checked
+	 {% endif %}>
+	<label class="form-check-label" for="chk7" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle; {% if not firstOP2457 %} visibility: hidden; {% endif %}">
+	 기타
+	</label>
+	<input type="text" id="textbox7" placeholder="지원금 지원 기관명 입력." class="apcAmount7" name="OaName" maxlength="50" style="width: 450px; margin-left:10px;" 
+ 	{% if vo.tyCode == "OP2457" and vo.iemNmKor is not null %}
+	value="{{vo.iemNmKor}}"
+	{% else %}
+	readonly
+ 	{% endif %}>
+ 	{% if firstOP2457 %}
+	<button type="button" id="botton7" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	{% set firstOP2457 = false %}
+	{% else %}
+	<button type='button' name="delete-btn" class='btn btn-danger' style='flex: 0 0 auto;margin-left:10px;'><i class='fa fa-minus'></i>삭제</button>
+	{% endif %}
+	</div>
+	{% endif %}
+ 	{% endfor %}
+	
+	{% if not OP2457Item %}
+	<div class="form-check mb-5" style="display: flex; align-items: center;" id="div7">
+	<!--체크박스 -->
+	<input class="form-check-input custom-checkbox" type="checkbox"id="chk7" name="OaTyCode" value="OP2457" style="flex: 0 0 auto; margin:0px 0px 2px 0px;">
+	<label class="form-check-label" for="chk7" style="flex: 0 0 300px; color: rgb(116, 116, 116); margin-left:10px; vertical-align: middle;">
+	 기타
+	</label>
+	<input type="text" id="textbox7" placeholder="지원금 지원 기관명 입력." class="apcAmount7" name="OaName" maxlength="50" style="width: 450px; margin-left:10px;" readonly>
+	<button type="button" id="botton7" class="btn btn-primary btn-custom-edit2" style="flex: 0 0 auto; margin-left:10px;"readonly><i class="fa fa-plus"></i>추가</button>
+	</div>
+	{% endif %}
+	</div>
+</div>
+<!--/From -->
+</div></div></div>
+<div class="fixed-bottom number-right p-3">
+	<button class="btn btn-primary btn-custom-edit2" type="button" onclick="submitForm()" >
+	<i class="fa fa-edit">저장</i>
+	</button>
+</div></div></div>
+</form>
+{% if apcDTO.etcCodeList is not empty %}
+<div id="hiddenDiv" style="display: none;" data-count="{{ apcDTO.apcDataList.size() }}"></div>
+{% else %}
+<div id="hiddenDiv" style="display: none;" data-count="1"></div>
+{% endif %}
+	
+
+{% endblock %}
+{% block script %}	
+<script >
+// 값에 대한 상수
+const VALUES = {
+    OP2405: "OP2405",
+    OP2406: "OP2406",
+    OP2407: "OP2407",
+    OP2408: "OP2408",
+    OP2501: "OP2501",
+    OP2502: "OP2502"
+};
+
+// 조건에 따라 입력 필드 비우기
+function clearInputsOnCondition() {
+    if ($('#Free').is(':checked')) {
+        $('#input_inner input').prop('readonly', true);
+         $('#input_inner input[type="number"]').val('');
+         $('#input_inner input[type="radio"]').prop('checked', false);
+         $('#won_hidden').val("N");
+         $('#dollar_hidden').val("N");
+    }
+    if ($('#private').is(':checked')) {
+        $('#inner_div').prop('readonly', true);
+         $('#inner_div input[type="text"]').val('');
+         $('#inner_div input[type="checkbox"]').prop('checked', false);
+    }
+}
+
+// letter 값에 따른 메인 폼 준비
+function prepareMainFormBasedOnLetter() {
+    let $letter = $('input[type=radio][name=letter]:checked').val();
+
+    if ($letter === 'Y') {
+        $('#OP2402').prop('readonly', false);
+        $('#OP2404').prop('readonly', true);
+    } 
+    if ($letter === 'N') {
+        $('#OP2404').prop('readonly', false);
+        $('#OP2402').prop('readonly', true);
+    }
+}
+
+// 폼에 숨겨진 입력 추가
+function appendHiddenInputsToForm(form, name, value) {
+    let input = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", name)
+        .val(value);
+    form.append(input);
+}
+
+// OA 값 전송
+function handleCheckboxItems(form) {
+  const items = [];
+  const checkboxes = $('[name="OaTyCode"]');
+  checkboxes.each(function() {
+    const checkbox = $(this);
+    if (checkbox.is(':checked')) {
+      const parent = checkbox.parent();
+      const textInput = parent.find('[name="OaName"]');
+      const item = {
+        checkbox: checkbox.prop('checked'),
+        text: textInput ? textInput.val() : null
+      };
+      items.push(item);
+
+      const checkboxInput = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "OaTyCodeList")
+        .val(checkbox.val());
+      const textInputHidden = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "OaNm")
+        .val(item.text);
+
+      form.append(checkboxInput, textInputHidden);
+    }
+  });
+}
+
+/* 학생,무소속 항목 form 전송*/
+function handleDdctCodes(form) {
+let ddctCode = [];
+let tyCode = [];
+let ddctCode1 = $('input[name="ddctCode1"]:checked').val();
+let ddctCode2 = $('input[name="ddctCode2"]:checked').val();
+
+if(ddctCode1 == 'OP2501' || ddctCode1 == 'OP2502'){
+	ddctCode.push(ddctCode1);
+	tyCode.push("OP2406");
+}
+if(ddctCode2 == 'OP2501' || ddctCode2 == 'OP2502'){
+	ddctCode.push(ddctCode2);
+	tyCode.push("OP2407");
+}
+for(let i = 0; i < ddctCode.length; i++){
+    let ddctCodeList = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "ddctCode")
+        .val(ddctCode[i]); 
+    form.append(ddctCodeList);
+}
+for(let i = 0; i < tyCode.length; i++){
+    let tyCodeList = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "tyCodeList")
+        .val(tyCode[i]); 
+    form.append(tyCodeList);
+}
+}
+
+/* ETC 관련 값 전송*/
+function handleEtcItems(form) {
+    /* 기타 항목 form 전송*/
+var $heads = $('.etc-group-head'); // 클래스 이름이 'etc-group-head'인 div 태그들을 선택
+var $bodies = $('.etc-group-body'); // 클래스 이름이 'etc-group-body'인 div 태그들을 선택
+
+$heads.each(function(index) {
+    var $head = $(this);
+    var $body = $($bodies[index]);
+
+    var discountStatusCheckedValues = [];
+    $body.find('input[name^="discountStatus"]:checked').each(function() {
+		if($(this).val() == "OP2501" || $(this).val() == "OP2502"){
+        discountStatusCheckedValues.push($(this).val());
+        }
+    });
+
+    var etcNm = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "etcNm")
+        .val($head.find('input[name^="etcName"]').val());
+    form.append(etcNm);
+    
+    for(let i = 0; i < discountStatusCheckedValues.length; i++){
+        let etcDdctCodeList = $("<input>")
+            .attr("type", "hidden")
+            .attr("name", "etcDdctCodeList")
+            .val(discountStatusCheckedValues[i]); 
+        form.append(etcDdctCodeList);
+    }
+    for(let i = 0; i < discountStatusCheckedValues.length; i++){
+        let etcCodeList = $("<input>")
+            .attr("type", "hidden")
+            .attr("name", "etcCodeList")
+            .val("OP2408"); 
+        form.append(etcCodeList);
+    }
+
+    var etcWonAmount = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "etcWonAmount")
+        .val($body.find('input[name^="amountWon"]').val());
+    form.append(etcWonAmount);
+
+    var etcDollarAmount = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "etcDollarAmount")
+        .val($body.find('input[name^="amountDollar"]').val());
+    form.append(etcDollarAmount);
+
+    var rateEtc = $("<input>")
+        .attr("type", "hidden")
+        .attr("name", "rateEtc")
+        .val($body.find('input[name^="ratePercent"]').val());
+    form.append(rateEtc);
+});
+}
+/*Form 전송*/
+function submitForm() {
+ 	 let form = $("#mainFrm");
+ 	 
+ 	if($('#Free').is(':checked') || $('#private').is(':checked')){
+ 	clearInputsOnCondition(); // 만약 #Free, #private 에 체크되있다면 칸 비우기.
+ 	$('#OP2301').val("");
+ 	$('#OP2402').val("");
+ 	$('#OP2404').val("");
+ 	submitFormWithAjax(form);
+	 }else{
+    let validationResult = validateForm();
+    console.log('Validation result: ', validationResult);
+    if (validationResult) {
+ 
+        prepareMainFormBasedOnLetter();
+
+		appendHiddenInputsToForm
+		if(($('#excessWon').val() != null && $('#excessWon').val() != "") || 
+   		($('#excessDollar').val() != null && $('#excessDollar').val() != "")) {
+		 appendHiddenInputsToForm(form, "tyCodeList", "OP2405");
+	   }
+        $('input[readonly]').val(''); // 읽기 전용 값 지우기
+
+        handleCheckboxItems(form);
+        handleDdctCodes(form);
+        handleEtcItems(form);
+
+        submitFormWithAjax(form);
+    }
+    }
+}
+		
+function submitFormWithAjax(form) {
+    $.ajax({
+        url: form.attr('action'), // Form의 action 속성값을 URL로 사용.
+        type: 'post', // POST method를 사용하여 서버에 요청.
+        data: form.serialize(), // Form 내의 데이터를 직렬화하여 서버에 전송.
+        success: function(response) {
+            location.reload(); // 페이지를 새로고침합니다.
+        },
+    });
+}
+			
+/* 유효성 검증 */
+function validateForm() {
+    function checkInputs(letterType) {
+        let wonCheckId = `#main_APC_won`;
+        let dollarCheckId = `#main_APC_dollar`;
+        let wonLetterId = `#letter_${letterType}_won`;
+        let dollarLetterId = `#letter_${letterType}_dollar`;
+        let errorMsg = letterType === 'Y' ? "기준금액 혹은 추가금액" : "기준금액 혹은 감액";
+
+        if ($("#won").is(":checked") && $("#dollar").is(":checked")) {
+            if ([wonCheckId, dollarCheckId, wonLetterId, dollarLetterId].some(id => $(id).val().trim() === '')) {
+                BootstrapDialog.validateAlert(`${errorMsg}이 현재 공란입니다.`);
+                return false;
+            }
+        } else if ($("#won").is(":checked")) {
+            if ([wonCheckId, wonLetterId].some(id => $(id).val().trim() === '')) {
+                BootstrapDialog.validateAlert(`${errorMsg}이 현재 공란입니다.`);
+                return false;
+            }
+        } else if ($("#dollar").is(":checked")) {
+            if ([dollarCheckId, dollarLetterId].some(id => $(id).val().trim() === '')) {
+                BootstrapDialog.validateAlert(`${errorMsg}이 현재 공란입니다.`);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    var isValid = true;
+
+    if ($("#letter_Y").is(":checked")) isValid = checkInputs('Y');
+    if ($("#letter_N").is(":checked")) isValid = checkInputs('N');
+	    
+		$('[name^="ddctCode"][type="radio"]:checked').each(function () {
+		    var row = $(this).closest('.row');
+		    var ddctWonAmount = row.find('input[name="ddctWonAmount"]').val();
+		    var ddctDollarAmount = row.find('input[name="ddctDollarAmount"]').val();
+		    var rate = row.find('input[name="rate"]').val();
+		    var amountradioValue = row.find('.amount-radio:checked').val();
+		    var percentRadioValue = row.find('.percent-radio:checked').val();
+
+		    if ($(this).val() == "OP2502") {
+		        if (amountradioValue == 'Y') {
+		            if (ddctWonAmount == "" && ddctDollarAmount == "") {
+		               	BootstrapDialog.validateAlert("금액을 작성해주세요.", ddctWonAmount);
+		                isValid = false;
+		            }
+		        } else if (percentRadioValue == 'N') {
+		            if (rate == "") {
+		                BootstrapDialog.validateAlert("비율을 작성해주세요.", percentRadioValue);
+		                isValid = false;
+		            }
+		        }
+		    }
+		});
+	
+		$('[name^="discountStatus"]:checked').each(function () {
+		var index = $(this).attr('name').replace(/[^0-9]/g, '');
+		var row = $(this).closest('.row');
+		var discountRadioChecked = $('[id="etc_radio_Y' + index + '"]')
+		var percentRadioValue = $('[id="etc_radio_N' + index + '"]')
+	
+		if (["OP2501", "OP2502"].includes($(this).val()) && $('[name="etcName' + index + '"]').val() === '') {
+			BootstrapDialog.validateAlert("기타항목의 이름을 작성해주세요.");
+			isValid = false;
+		}
+			console.log("Index value: ", index);
+			console.log("this : ", $(this).val());
+			console.log("discountRadioChecked val : ", discountRadioChecked.val());
+			console.log("discountRadioChecked : ", discountRadioChecked);
+			console.log("percentRadioValue : ",  percentRadioValue.val());
+		    if ("OP2502".includes($(this).val())) {
+		        if (discountRadioChecked.is(':checked')) {
+		            if ($('[name="amountWon' + index + '"]').val() === '' && $('[name="amountDollar' + index + '"]').val() === '') {
+		                BootstrapDialog.validateAlert("금액을 작성해주세요.");
+		                isValid = false;
+		            }
+		        } else if (percentRadioValue.is(':checked')) {
+		            if ($('[name="ratePercent' + index + '"]').val() === '') {
+		                BootstrapDialog.validateAlert("비율을 작성해주세요.");
+		                isValid = false;
+		            }
+		        }
+		    }
+		});
+	return isValid;
+}
+/* 사사표기 라디오버튼 토글기능 */
+function toggleCheckAndRadio() {
+    let $letter = $('input[type=radio][name=letter]:checked').val();
+    let $wonCheckBox = $('#won').is(':checked');
+    let $dollarCheckBox = $('#dollar').is(':checked');
+    
+    // 우선 모든 '원'과 '달러' 관련 텍스트 박스를 비활성화
+    $('#letter_N_won, #letter_N_dollar, #letter_Y_won, #letter_Y_dollar, #main_APC_dollar, #main_APC_won, #excessWon, #excessDollar, #page_min, #page_max').prop('readonly', true);
+      if ($wonCheckBox) {
+            // '원' 체크박스가 선택되었을 경우, 해당하는 텍스트 박스를 활성화
+            $(`#main_APC_won`).prop('readonly', false);
+        } 
+
+        if ($dollarCheckBox) {
+            // '달러' 체크박스가 선택되었을 경우, 해당하는 텍스트 박스를 활성화
+            $(`#main_APC_dollar`).prop('readonly', false);
+        } 
+    if(!$letter) {
+        // letter 라디오 버튼이 선택되지 않았다면, 모든 텍스트 박스는 비활성화 상태를 유지
+        return;
+    } else {
+        if ($wonCheckBox || $dollarCheckBox) {
+            // '원' 또는 '달러' 체크박스가 선택되었을 경우, 페이지 입력 요소를 활성화
+            $('#page_min,#page_max').prop('readonly', false);
+        }
+
+        if ($wonCheckBox) {
+            // '원' 체크박스가 선택되었을 경우, 해당하는 텍스트 박스를 활성화
+            $(`#main_APC_won, #excessWon, #letter_${$letter}_won`).prop('readonly', false);
+        } 
+
+        if ($dollarCheckBox) {
+            // '달러' 체크박스가 선택되었을 경우, 해당하는 텍스트 박스를 활성화
+            $(`#main_APC_dollar, #excessDollar, #letter_${$letter}_dollar`).prop('readonly', false);
+        } 
+    }
+}toggleCheckAndRadio();//초기상태를 위해 1번 실행
+
+
+/* ETC 추가버튼 기능*/
+function insertETC(count) {  //추가 버튼을 누를시 추가 입력칸을 생성하는 함수
+	//새로 추가된 기타 항목의 이름을 입력받는 부분
+	var new_row1 = `<div class="row etc-group-head group${count}" style="margin-bottom: 5px;">
+				            <div class="col " style="margin-bottom: 5px;"><label style="color: rgb(116, 116, 116);">기타 &nbsp&nbsp</label>
+				           <input type="text" class="form-control" style="width: 150px" name="etcName${count}" ></div>
+					 		</div>`;
+	//새로 추가된 기타 항목의 금액과 상태를 입력받는 부분						 		
+	var new_row2 = `<div class="row etc-group-body group${count}" style="margin-bottom: 10px;">
+							<div class="col-md-1 "><label style="color: rgb(116, 116, 116);"><input type="radio" class="discount-radio" name="discountStatus${count}" checked value=""/>해당없음</label></div>
+							<div class="col-md-1 "><label style="color: rgb(116, 116, 116);"><input type="radio" class="discount-radio" name="discountStatus${count}" value="OP2501" />면제</label></div>
+							<div class="col-md-2 "><label style="color: rgb(116, 116, 116);"><input type="radio" class="discount-radio" name="discountStatus${count}" value="OP2502" />
+							할인 &nbsp
+							<label>(<input type="radio" class="amount-radio" value="Y" name="discount${count}_radio" id="etc_radio_Y${count}"><label for="etc_radio_Y${count}" >금액</label>
+							&nbsp&nbsp<input type="radio"class="percent-radio" value="N" name="discount${count}_radio" id="etc_radio_N${count}"><label for="etc_radio_N${count}" >비율</label>)
+							</label></label></div>
+							<div class="col-md-2" style="margin-left:30px;">₩ <input type="number" class="form-control" style="width: 150px" name="amountWon${count}" min="0" max="100" readonly ></div>
+							<div class="col-md-2 pl-0">$ <input type="number" class="form-control" style="width: 150px" name="amountDollar${count}" min="0" max="100"  readonly></div>
+							<div class="col-md-2 pl-0">% <input type="number" class="form-control" style="width: 100px" name="ratePercent${count}" min="0" max="100" readonly></div>
+							<div class="col-md-1 pl-0" style="margin-left:5px;">
+								<button type="button" id="btn4" class="btn btn-danger btn-remove" data-group="group${count}"><i class="fa fa-minus"></i>삭제</button>
+							</div>
+							`;
+	$(new_row1).insertAfter($("#ETC_title"));
+	$(new_row2).insertAfter($("#Etn"));
+}
+
+
+//유료와 무료 hide처리 관련 함수
+function handlePaidYnChange() {  
+	if ($('input[id=Free]').is(':checked')){
+		 $('#input_inner').hide();
+	}
+	else if ($('input[id=Charged]').is(':checked')){
+		$('#input_inner').show();
+	}
+}
+handlePaidYnChange();
+
+//OA출판정보 공개 hide처리 관련 함수
+function handlePublicYnChange() {  
+	if ($('input[id=Private]').is(':checked')){
+		 $('#inner_div').hide();
+	}
+	else if ($('input[id=Public]').is(':checked')){
+		$('#inner_div').show();
+	}
+}
+handlePublicYnChange();	
+	
+//OA출판 재정공개 - 체크박스 토글
+function checkboxEventHandler() { 
+	var isChecked = $(this).is(":checked");
+	var $textInput = $(this).siblings("input[type='text']");
+	var $button = $(this).siblings("button.btn-primary");
+	$textInput.prop('readonly', !isChecked);
+	
+	// 체크박스가 해제되었을 때 텍스트 박스 내용 삭제
+	if(!isChecked) {
+	    $textInput.val('');
+	}
+	
+	// 복사된 자식 텍스트박스도 부모 체크박스에 따라 활성화/비활성화 처리
+	var $div = $(this).parent();
+	$div.siblings().each(function () {
+	    $(this).find("input[type='text']").prop('readonly', !isChecked);
+	    if (!isChecked) {
+	    	$(this).find("input[type='text']").val('');
+	    }
+	});
+}
+
+//OA출판 재정공개 항목 삭제 버튼 클릭 이벤트
+function deleteButtonHandler() {
+	console.log($(this).parent());
+    $(this).parent().remove(); 
+}
+
+				
+//------핸들러 부분------------------------------------------
+$(document).ready(function () {
+	console.log($('input[name="journal\\.apc\\.paidYn"]:checked').val());
+	
+	$('input[id="Charged"],input[id="Free"]').change(handlePaidYnChange);
+	$('input[id="Public"],input[id="Private"]').change(handlePublicYnChange);
+	$('#won, #dollar, #letter_Y, #letter_N').click(toggleCheckAndRadio);
+	
+
+	let countElement = document.getElementById('hiddenDiv');
+	let maxIndex = parseInt(countElement.getAttribute('data-count'));
+	// 추가버튼을 누를시, Pebble을 통해 생성된 HTML에 번호 이어받아서 기타항목 추가시 번호 부여 
+	$(document).on('click', '#btn3', function () {
+		insertETC(maxIndex);
+		maxIndex++;
+		countElement.setAttribute('data-count', maxIndex);
+	});
+
+	$(document).on('click', '.btn-remove', function () { //추가된 기타 입력 항목에 있는 삭제 버튼을 누를경우 해당 라인 삭제 기능
+		let groupClass = $(this).data('group');
+		$('.' + groupClass).remove();
+	});
+	
+/* 할인 및 면제 관련 라디오버튼에 따른 text박스 토글기능*/
+$(document).on('click', ".discount-radio, .amount-radio, .percent-radio", function() {
+	
+    var row = $(this).closest('.row');
+    var wonInput = row.find("input[name='ddctWonAmount']");
+    var dollarInput = row.find("input[name='ddctDollarAmount']");
+    var etcWonInput = row.find("input[name^='amountWon']");
+    var etcDollarInput = row.find("input[name^='amountDollar']");
+    var percentInput = row.find("input[name^='rate']");
+    var button = row.find("#btn3");
+    
+    // OP2502(할인)과 Y(금액)가 선택된 상태인지 확인
+    if (row.find("input.discount-radio:checked").val() == 'OP2502' && 
+        row.find("input.amount-radio:checked").val() == 'Y') {
+        // 체크박스 상태에 따라 입력 필드 활성화/비활성화
+        wonInput.prop("readonly", !$('#won').is(':checked'));
+        etcWonInput.prop("readonly", !$('#won').is(':checked'));
+        dollarInput.prop("readonly", !$('#dollar').is(':checked'));
+        etcDollarInput.prop("readonly", !$('#dollar').is(':checked'));
+        percentInput.prop("readonly", true);
+        button.prop("readonly", false);
+    } else if (row.find("input.discount-radio:checked").val() == 'OP2502' && 
+			row.find("input.percent-radio:checked").val() == 'N') {
+            // 비율 선택시 비율 입력 필드 활성화, 원과 달러 입력 필드 비활성화
+        wonInput.prop("readonly", true);
+        etcWonInput.prop("readonly", true);
+        dollarInput.prop("readonly", true);
+        etcDollarInput.prop("readonly", true);
+        percentInput.prop("readonly", false);
+        button.prop("readonly", false);
+    }else {
+        // 둘 중 하나라도 선택되지 않았다면 입력 필드 비활성화
+        wonInput.prop("readonly", true);
+        etcWonInput.prop("readonly", true);
+        percentInput.prop("readonly", true);
+        dollarInput.prop("readonly", true);
+        etcDollarInput.prop("readonly", true);
+        button.prop("readonly", true);
+    	}
+	});
+});
+
+// 체크박스 상태 변경 감지
+$('#won, #dollar').change(function() {
+    // 체크박스 상태
+    var isWonChecked = $('#won').is(':checked');
+    var isDollarChecked = $('#dollar').is(':checked');
+
+    // 할인과 금액이 모두 적용된 행들에 대해서만 처리
+    $('.row').each(function() {
+        var row = $(this);
+        if (row.find("input.discount-radio:checked").val() == 'OP2502' &&
+            row.find("input.amount-radio:checked").val() == 'Y') {
+            // 체크박스 상태에 따라 입력 필드 활성화/비활성화
+            row.find("input[name^='ddctWonAmount']").prop("readonly", !isWonChecked);
+            row.find("input[name^='ddctDollarAmount']").prop("readonly", !isDollarChecked);
+            row.find("input[name^='amountWon']").prop("readonly", !isWonChecked);
+            row.find("input[name^='amountDollar']").prop("readonly", !isDollarChecked);
+        } else {
+            // 둘 중 하나라도 선택되지 않았다면 입력 필드 비활성화
+            row.find("input[name^='ddctWonAmount']").prop("readonly", true);
+            row.find("input[name^='ddctDollarAmount']").prop("readonly", true);
+            row.find("input[name^='amountWon']").prop("readonly", true);
+            row.find("input[name^='amountDollar']").prop("readonly", true);
+        }
+    });
+});
+$(".discount-radio:checked, .amount-radio:checked, .percent-radio:checked").click();//출력값에 맞게 버튼 재클릭
+ 
+//OA 출판 재정 공개
+// 항목 추가 버튼 클릭 이벤트
+$("button[id^='botton']").click(function() {
+    var id = $(this).attr('id').substring(6);
+    var $div = $("#div" + id);
+    var $clone = $div.clone(true);
+
+    // 복사한 div에서 input의 value를 비움
+    $clone.find("input[type='text']").val("");
+    $clone.find("button[type='button']").remove();
+    $clone.find("input[type='checkbox'], label").css('visibility', 'hidden');
+
+    var $deleteButton = $("<button type='button' class='btn btn-danger' style='flex: 0 0 auto;margin-left:10px;'><i class='fa fa-minus'></i>삭제</button>");
+
+    $deleteButton.click(deleteButtonHandler);
+    $clone.append($deleteButton);
+    // 복사한 div를 원래 div의 바로 아래에 삽입
+    $div.after($clone);
+    // 복사된 항목의 체크박스 이벤트 리스너를 재등록
+    $clone.find("input[type='checkbox']").change(checkboxEventHandler);
+});
+
+// 초기 항목의 체크박스 이벤트 리스너 등록
+$("input[type='checkbox']").change(checkboxEventHandler);
+
+//OA규정 공개 - 체크박스 토글
+$('.custom-checkbox').click(function() { 
+    let $this = $(this);
+    let value = $this.val(); // 동일한 그룹의 체크박스를 구분하기 위한 value 속성
+    let isChecked = $this.is(':checked');
+    
+    // 동일한 그룹의 체크박스 상태를 동기화
+    $('.custom-checkbox').each(function() {
+        let $otherCheckbox = $(this);
+        if ($otherCheckbox.val() === value) {
+            $otherCheckbox.prop('checked', isChecked);
+        }
+    });
+
+    let $textbox = $this.nextAll('input[type="text"]:first');
+    let $button = $this.nextAll('button:first');
+
+    if (isChecked) {
+        $textbox.prop('readonly', false);
+        $button.prop('readonly', false);
+        $textbox.focus();
+    } else {
+        $textbox.prop('readonly', true);
+        $button.prop('readonly', true);
+        $textbox.val('');
+    }
+});
+
+$(document).ready(function() { //화폐 사용여부
+    $('#won, #dollar').change(function() {
+        var hiddenField = $("#" + $(this).attr("id") + "_hidden");
+        if ($(this).is(':checked')) {
+            $(this).val('Y');
+            hiddenField.val('Y');
+        } else {
+            $(this).val('N');
+            hiddenField.val('N');
+        }
+    });
+
+    // 페이지 로드 시 체크박스의 초기 상태에 따라 값 설정
+    $('#won, #dollar').each(function() {
+        var hiddenField = $("#" + $(this).attr("id") + "_hidden");
+        if ($(this).is(':checked')) {
+            $(this).val('Y');
+            hiddenField.val('Y');
+        } else {
+            $(this).val('N');
+            hiddenField.val('N');
+        }
+    });
+});
+$('button[name="delete-btn"]').click(deleteButtonHandler);
+
+</script>
+{% endblock %}
+
+
