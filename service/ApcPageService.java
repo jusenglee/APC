@@ -21,14 +21,6 @@ public interface ApcPageService {
    */
   List<ApcVO> getAllApcInfos(Journal journal) throws Exception;
   
-  /**
-   * APC 정보 뷰 반환 (Service)
-   * 
-   * @param Journal 
-   * @return apcDTO
-   * @throws Exception
-   */
-  ApcDTO getApcDTO(Journal journal) throws Exception;
   
   /**
    * APC 정보 저장 (Service)
